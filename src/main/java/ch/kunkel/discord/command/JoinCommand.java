@@ -15,7 +15,6 @@ public class JoinCommand implements Command {
 
 	@Override
 	public void run() {
-		// TODO this command
 	}
 
 	@Override
