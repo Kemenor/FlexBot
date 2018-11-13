@@ -28,7 +28,7 @@ public class Main {
 	}
 
 	public Main() throws IOException, URISyntaxException, LoginException {
-		TOKEN = new String(Files.readAllBytes(Paths.get(Main.class.getResource("token").toURI())));
+		TOKEN = new String(Files.readAllBytes(Paths.get("token")));
 		JDA api = new JDABuilder(TOKEN).build();
 		try {
 			api.awaitReady();
