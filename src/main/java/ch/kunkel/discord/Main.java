@@ -16,7 +16,6 @@ import net.dv8tion.jda.core.JDABuilder;
 public class Main {
 	private static Logger logger = LoggerFactory.getLogger(Main.class);
 	private final String TOKEN;
-	public final static String VCANNELNAME = "join to create Flexchannel";
 
 	public static void main(String[] args) {
 		try {
@@ -37,5 +36,6 @@ public class Main {
 			e.printStackTrace();
 		}
 		api.addEventListener(new CommandListener());
+		api.addEventListener(new ChannelManager());
 	}
 }

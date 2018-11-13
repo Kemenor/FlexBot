@@ -6,7 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.kunkel.discord.Main;
+import ch.kunkel.discord.Config;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -15,6 +15,7 @@ public class CreateCommand implements Command {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	private String[] args;
 	private MessageReceivedEvent event;
+	private Config config = Config.getInstance();
 
 	protected CreateCommand() {
 	}
@@ -43,15 +44,16 @@ public class CreateCommand implements Command {
 			List<Category> categoriesByName = guild.getCategoriesByName(category, true);
 			if (!categoriesByName.isEmpty()) {
 				logger.debug("creating category voice channel");
-				categoriesByName.get(0).createVoiceChannel(Main.VCANNELNAME).complete();
-				event.getChannel().sendMessage("Created channel \"" + Main.VCANNELNAME + "\" at category \""
-						+ categoriesByName.get(0).getName() + "\".").complete();
+				categoriesByName.get(0).createVoiceChannel(config.getProperty("Channel.Manager")).complete();
+				event.getChannel().sendMessage("Created channel \"" + config.getProperty("Channel.Manager")
+						+ "\" at category \"" + categoriesByName.get(0).getName() + "\".").complete();
 				return;
 			}
 		}
 		logger.debug("creating guild voice channel");
-		guild.getController().createVoiceChannel(Main.VCANNELNAME).complete();
-		event.getChannel().sendMessage("Created channel " + Main.VCANNELNAME + " at topplevel.").complete();
+		guild.getController().createVoiceChannel(config.getProperty("Channel.Manager")).complete();
+		event.getChannel().sendMessage("Created channel " + config.getProperty("Channel.Manager") + " at topplevel.")
+				.complete();
 	}
 
 	@Override
