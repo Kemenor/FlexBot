@@ -9,24 +9,28 @@ import org.slf4j.LoggerFactory;
 import ch.kunkel.discord.Config;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class CreateCommand implements Command {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	private String[] args;
-	private MessageReceivedEvent event;
+	private GuildMessageReceivedEvent event;
 	private Config config = Config.getInstance();
 
 	protected CreateCommand() {
 	}
 
-	private CreateCommand(String[] args, MessageReceivedEvent event) {
+	private CreateCommand(String[] args, GuildMessageReceivedEvent event) {
 		this.args = args;
 		this.event = event;
 	}
 
 	@Override
 	public void run() {
+		Guild guild = event.getGuild();
+		if (guild == null) {
+			event.getChannel().sendMessage("this command can't be executed in private chat!").submit();
+		}
 		logger.debug("create {}", Arrays.toString(args));
 		String category = null;
 		if (args.length >= 3) {
@@ -38,26 +42,36 @@ public class CreateCommand implements Command {
 			category = catName.toString().trim();
 		}
 		logger.debug("running create command with category {}", category);
-		Guild guild = event.getGuild();
-
 		if (category != null) {
 			List<Category> categoriesByName = guild.getCategoriesByName(category, true);
 			if (!categoriesByName.isEmpty()) {
 				logger.debug("creating category voice channel");
-				categoriesByName.get(0).createVoiceChannel(config.getProperty("Channel.Manager")).complete();
-				event.getChannel().sendMessage("Created channel \"" + config.getProperty("Channel.Manager")
-						+ "\" at category \"" + categoriesByName.get(0).getName() + "\".").complete();
+				categoriesByName.get(0).createVoiceChannel(config.getProperty("Channel.Manager")).queue((channel) -> {
+					event.getChannel().sendMessage("Created channel \"" + config.getProperty("Channel.Manager")
+							+ "\" at category \"" + categoriesByName.get(0).getName() + "\".").submit();
+				}, (throwable) -> {
+					event.getChannel().sendMessage("Couldn't create channel \"" + config.getProperty("Channel.Manager")
+							+ "\" at category \"" + categoriesByName.get(0).getName() + "\". " + throwable.getMessage())
+							.submit();
+				});
+
 				return;
 			}
 		}
 		logger.debug("creating guild voice channel");
-		guild.getController().createVoiceChannel(config.getProperty("Channel.Manager")).complete();
-		event.getChannel().sendMessage("Created channel " + config.getProperty("Channel.Manager") + " at topplevel.")
-				.complete();
+		guild.getController().createVoiceChannel(config.getProperty("Channel.Manager")).queue((channel) -> {
+			event.getChannel()
+					.sendMessage("Created channel " + config.getProperty("Channel.Manager") + " at topplevel.")
+					.submit();
+		}, (throwable) -> {
+			event.getChannel().sendMessage("Couldn't create channel " + config.getProperty("Channel.Manager")
+					+ " at topplevel. " + throwable.getMessage()).submit();
+		});
+
 	}
 
 	@Override
-	public Command newInstance(String[] args, MessageReceivedEvent event) {
+	public Command newInstance(String[] args, GuildMessageReceivedEvent event) {
 		return new CreateCommand(args, event);
 	}
 

@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -22,6 +24,20 @@ public class ChannelManager extends ListenerAdapter {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	private Map<VoiceChannel, String> managedChannel = new HashMap<>();
 	private Config config = Config.getInstance();
+	private Timer t = new Timer(true);
+	private TimerTask updateChannel = new TimerTask() {
+		@Override
+		public void run() {
+			logger.debug("updating channel names");
+			for (VoiceChannel vc : managedChannel.keySet()) {
+				updateChannelName(vc);
+			}
+		}
+	};
+
+	public ChannelManager() {
+		t.schedule(updateChannel, 0, config.getProperty("Channel.updateInterval", 60) * 1000);
+	}
 
 	@Override
 	public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {

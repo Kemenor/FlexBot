@@ -1,15 +1,15 @@
 package ch.kunkel.discord.command;
 
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class JoinCommand implements Command {
 
-	private MessageReceivedEvent event;
+	private GuildMessageReceivedEvent event;
 
 	protected JoinCommand() {
 	}
 
-	private JoinCommand(MessageReceivedEvent event) {
+	private JoinCommand(GuildMessageReceivedEvent event) {
 		this.event = event;
 	}
 
@@ -19,7 +19,7 @@ public class JoinCommand implements Command {
 	}
 
 	@Override
-	public Command newInstance(String[] args, MessageReceivedEvent event) {
+	public Command newInstance(String[] args, GuildMessageReceivedEvent event) {
 		return new JoinCommand(event);
 	}
 

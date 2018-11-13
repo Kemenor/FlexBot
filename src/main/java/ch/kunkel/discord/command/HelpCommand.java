@@ -5,16 +5,16 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class HelpCommand implements Command {
 	private Logger logger = LoggerFactory.getLogger(getClass());
-	private MessageReceivedEvent event;
+	private GuildMessageReceivedEvent event;
 
 	protected HelpCommand() {
 	}
 
-	private HelpCommand(MessageReceivedEvent event) {
+	private HelpCommand(GuildMessageReceivedEvent event) {
 		this.event = event;
 	}
 
@@ -28,11 +28,11 @@ public class HelpCommand implements Command {
 			sb.append(entry.getValue().getHelpString());
 			sb.append("\n");
 		}
-		event.getChannel().sendMessage(sb).complete();
+		event.getChannel().sendMessage(sb).submit();
 	}
 
 	@Override
-	public Command newInstance(String[] args, MessageReceivedEvent event) {
+	public Command newInstance(String[] args, GuildMessageReceivedEvent event) {
 		return new HelpCommand(event);
 	}
 

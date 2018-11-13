@@ -8,7 +8,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class CommandFactory {
 	public static final Map<String, Command> defaultCommands = new HashMap<String, Command>() {
@@ -51,7 +51,7 @@ public class CommandFactory {
 	 * @param event   the messageevent that generated this command
 	 * @return a new command that will be executed sometime in the future
 	 */
-	public Command createCommand(String[] command, MessageReceivedEvent event) {
+	public Command createCommand(String[] command, GuildMessageReceivedEvent event) {
 		logger.debug("creating command {}", Arrays.toString(command));
 		Command c = null;
 
