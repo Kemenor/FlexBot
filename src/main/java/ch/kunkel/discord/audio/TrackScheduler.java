@@ -20,7 +20,6 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public TrackScheduler(AudioPlayerManager playerManager) {
 		player = playerManager.createPlayer();
-
 		player.addListener(this);
 		player.setVolume(10);
 	}
@@ -44,13 +43,16 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void stop() {
-		logger.debug("Player stopping");
 		player.stopTrack();
 	}
 
 	public void start() {
-		logger.debug("Player starting");
-		player.startTrack(queue.poll(), true);
+		if (player.isPaused()) {
+			player.setPaused(false);
+		}
+		if (player.startTrack(queue.peek(), true)) {
+			queue.poll();
+		}
 	}
 
 	public void pause() {

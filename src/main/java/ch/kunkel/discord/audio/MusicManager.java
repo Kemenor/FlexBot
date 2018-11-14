@@ -15,6 +15,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
+import edu.cmu.sphinx.api.Configuration;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -25,11 +26,16 @@ public class MusicManager {
 	private AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
 	private Map<Guild, TrackScheduler> map = new HashMap<>();
 	private Logger logger = LoggerFactory.getLogger(MusicManager.class);
+	private Configuration configuration = new Configuration();
 
 	public MusicManager() {
 		logger.debug("registering remote sources");
 		playerManager.getConfiguration().setResamplingQuality(ResamplingQuality.HIGH);
 		AudioSourceManagers.registerRemoteSources(playerManager);
+
+		configuration.setAcousticModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us");
+		configuration.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
+		configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
 	}
 
 	public void join(VoiceChannel vc) {
@@ -42,7 +48,13 @@ public class MusicManager {
 			AudioManager am = vc.getGuild().getAudioManager();
 			am.openAudioConnection(vc);
 			am.setSendingHandler(new AudioPlayerSendHandler(trackScheduler));
-			// am.setReceivingHandler(new VoiceManager());
+			// TODO uncomment when everything works
+//			try {
+//				am.setReceivingHandler(new VoiceManager(configuration));
+//			} catch (IOException e) {
+//				logger.warn("Voice Recognition not working!", e);
+//			}
+
 			am.openAudioConnection(vc);
 			map.put(vc.getGuild(), trackScheduler);
 		}

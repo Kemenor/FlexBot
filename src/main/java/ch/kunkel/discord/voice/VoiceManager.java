@@ -4,56 +4,41 @@ import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.cmu.sphinx.api.Configuration;
-import edu.cmu.sphinx.api.SpeechAligner;
 import edu.cmu.sphinx.api.SpeechResult;
 import edu.cmu.sphinx.api.StreamSpeechRecognizer;
 import net.dv8tion.jda.core.audio.AudioReceiveHandler;
 import net.dv8tion.jda.core.audio.CombinedAudio;
 import net.dv8tion.jda.core.audio.UserAudio;
 
-public class VoiceManager implements AudioReceiveHandler {
+public class VoiceManager implements AudioReceiveHandler, AutoCloseable {
 	private Logger logger = LoggerFactory.getLogger(VoiceManager.class);
 	private PipedOutputStream pop = new PipedOutputStream();
 	private PipedInputStream pip = new PipedInputStream();
 
-	public VoiceManager() {
+	private AudioFormat discordFormat = OUTPUT_FORMAT;
+	private AudioFormat sphinxFormat = new AudioFormat(16000.0f, 16, 1, true, false);
+	private VoiceConsumer consumer;
+
+	public VoiceManager(Configuration configuration) throws IOException {
+		if (!AudioSystem.isConversionSupported(sphinxFormat, discordFormat)) {
+			throw new IOException("Can't convert into voice recognition format!");
+		}
 		try {
 			pop.connect(pip);
-			Configuration configuration = new Configuration();
-
-			configuration.setAcousticModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us");
-			configuration.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
-			configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
-
-			SpeechAligner a;
-
-			Thread t = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						StreamSpeechRecognizer recognizer = new StreamSpeechRecognizer(configuration);
-						recognizer.startRecognition(pip);
-						SpeechResult result;
-						while ((result = recognizer.getResult()) != null) {
-							System.out.format("Hypothesis: %s\n", result.getHypothesis());
-						}
-						logger.error("Recognizer stopping");
-						recognizer.stopRecognition();
-					} catch (IOException e) {
-						logger.error("Voice Recognition isn't working", e);
-					}
-				}
-			});
-			t.start();
-
 		} catch (IOException e) {
 			logger.error("Voice Recognition isn't working", e);
+			throw e;
 		}
-
+		consumer = new VoiceConsumer(configuration);
+		Thread t = new Thread(consumer);
+		t.start();
 	}
 
 	@Override
@@ -81,7 +66,7 @@ public class VoiceManager implements AudioReceiveHandler {
 		// userAudio
 		try {
 			byte[] data = userAudio.getAudioData(1.0);
-
+			// TODO need to convert the data
 			pop.write(data);
 			// JDA: 48KHz 16bit stereo signed BigEndian PCM
 			// RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 16000 Hz
@@ -91,5 +76,43 @@ public class VoiceManager implements AudioReceiveHandler {
 		} catch (IOException e) {
 			logger.error("Can't write data to voice recognition", e);
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		this.consumer.stop();
+		this.pip.close();
+		this.pop.close();
+	}
+
+	class VoiceConsumer implements Runnable {
+		private boolean run = true;
+		private Configuration configuration;
+
+		public VoiceConsumer(Configuration configuration) {
+			this.configuration = configuration;
+		}
+
+		@Override
+		public void run() {
+			try {
+				StreamSpeechRecognizer recognizer = new StreamSpeechRecognizer(configuration);
+				recognizer.startRecognition(pip);
+				SpeechResult result;
+				while (run && (result = recognizer.getResult()) != null) {
+					// TODO check if command and add command creation
+					System.out.format("Hypothesis: %s\n", result.getHypothesis());
+				}
+				logger.error("Recognizer stopping");
+				recognizer.stopRecognition();
+			} catch (IOException e) {
+				logger.error("Voice Recognition isn't working", e);
+			}
+		}
+
+		public void stop() {
+			this.run = false;
+		}
+
 	}
 }
