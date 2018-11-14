@@ -29,7 +29,7 @@ public class CreateCommand implements Command {
 	public void run() {
 		Guild guild = event.getGuild();
 		if (guild == null) {
-			event.getChannel().sendMessage("this command can't be executed in private chat!").submit();
+			event.getChannel().sendMessage("this command can't be executed in private chat!").queue();
 		}
 		logger.debug("create {}", Arrays.toString(args));
 		String category = null;
@@ -48,11 +48,11 @@ public class CreateCommand implements Command {
 				logger.debug("creating category voice channel");
 				categoriesByName.get(0).createVoiceChannel(config.getProperty("Channel.Manager")).queue((channel) -> {
 					event.getChannel().sendMessage("Created channel \"" + config.getProperty("Channel.Manager")
-							+ "\" at category \"" + categoriesByName.get(0).getName() + "\".").submit();
+							+ "\" at category \"" + categoriesByName.get(0).getName() + "\".").queue();
 				}, (throwable) -> {
 					event.getChannel().sendMessage("Couldn't create channel \"" + config.getProperty("Channel.Manager")
 							+ "\" at category \"" + categoriesByName.get(0).getName() + "\". " + throwable.getMessage())
-							.submit();
+							.queue();
 				});
 
 				return;
@@ -61,11 +61,10 @@ public class CreateCommand implements Command {
 		logger.debug("creating guild voice channel");
 		guild.getController().createVoiceChannel(config.getProperty("Channel.Manager")).queue((channel) -> {
 			event.getChannel()
-					.sendMessage("Created channel " + config.getProperty("Channel.Manager") + " at topplevel.")
-					.submit();
+					.sendMessage("Created channel " + config.getProperty("Channel.Manager") + " at topplevel.").queue();
 		}, (throwable) -> {
 			event.getChannel().sendMessage("Couldn't create channel " + config.getProperty("Channel.Manager")
-					+ " at topplevel. " + throwable.getMessage()).submit();
+					+ " at topplevel. " + throwable.getMessage()).queue();
 		});
 
 	}

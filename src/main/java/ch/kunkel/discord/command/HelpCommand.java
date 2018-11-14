@@ -14,7 +14,7 @@ public class HelpCommand implements Command {
 	protected HelpCommand() {
 	}
 
-	private HelpCommand(GuildMessageReceivedEvent event) {
+	public HelpCommand(GuildMessageReceivedEvent event) {
 		this.event = event;
 	}
 
@@ -22,13 +22,13 @@ public class HelpCommand implements Command {
 	public void run() {
 		logger.debug("Running help command");
 		StringBuilder sb = new StringBuilder();
-		for (Entry<String, Command> entry : CommandFactory.getInstance().getCommandMap().entrySet()) {
+		for (Entry<String, Command> entry : CommandFactory.defaultCommands.entrySet()) {
 			sb.append(entry.getKey());
 			sb.append(" - ");
 			sb.append(entry.getValue().getHelpString());
 			sb.append("\n");
 		}
-		event.getChannel().sendMessage(sb).submit();
+		event.getChannel().sendMessage(sb).queue();
 	}
 
 	@Override

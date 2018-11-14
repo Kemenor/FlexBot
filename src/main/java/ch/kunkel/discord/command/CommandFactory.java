@@ -1,7 +1,6 @@
 package ch.kunkel.discord.command;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,33 +13,24 @@ public class CommandFactory {
 	public static final Map<String, Command> defaultCommands = new HashMap<String, Command>() {
 		{
 			put("help", new HelpCommand());
-			put("join", new JoinCommand());
 			put("create", new CreateCommand());
+			put("join", new JoinCommand());
+			put("disconnect", new DisconnectCommand());
+			put("play", new PlayCommand());
+			put("stop", new StopCommand());
+			put("skip", new SkipCommand());
+			put("pause", new PauseCommand());
+			put("unpause", new UnpauseCommand());
+			put("setvolume", new SetVolumeCommand());
 		}
 	};
 
 	private Logger logger = LoggerFactory.getLogger(CommandFactory.class);
 	private Map<String, Command> commandMap = new HashMap<>();
 	private Command helpCommand = new HelpCommand();
-	private static CommandFactory instance;
 
-	public static CommandFactory getInstance() {
-		if (instance == null) {
-			instance = new CommandFactory();
-			instance.registerAllCommand(defaultCommands);
-		}
-		return instance;
-	}
-
-	private CommandFactory() {
-	}
-
-	public void registerCommand(String name, Command command) {
-		commandMap.put(name, command);
-	}
-
-	public void registerAllCommand(Map<String, Command> commandMap) {
-		this.commandMap.putAll(commandMap);
+	public CommandFactory() {
+		this.commandMap.putAll(defaultCommands);
 	}
 
 	/**
@@ -61,14 +51,10 @@ public class CommandFactory {
 
 		if (c == null) {
 			logger.debug("command not found, creating help Command");
-			event.getChannel().sendMessage("Sorry I didn't understand your command.").complete();
+			event.getChannel().sendMessage("Sorry I didn't understand your command.").queue();
 			return helpCommand.newInstance(null, event);
 		}
 		logger.debug("Command was found");
 		return c.newInstance(command, event);
-	}
-
-	public Map<String, Command> getCommandMap() {
-		return Collections.unmodifiableMap(commandMap);
 	}
 }

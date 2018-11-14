@@ -9,18 +9,17 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 public class CommandListener extends ListenerAdapter {
 	private Logger logger = LoggerFactory.getLogger(getClass());
-	private CommandFactory factory = CommandFactory.getInstance();
+	private CommandFactory factory = new CommandFactory();
 	private CommandExecutor executor = new CommandExecutor();
 
 	@Override
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-		logger.debug("received message event");
 		// no bot commands allowed
 		if (event.getAuthor().isBot()) {
 			return;
 		}
 
-		String[] command = event.getMessage().getContentStripped().split(" ");
+		String[] command = event.getMessage().getContentRaw().split(" ");
 		if (command[0].equals("!flex")) {
 			executor.addCommand(factory.createCommand(command, event));
 		}

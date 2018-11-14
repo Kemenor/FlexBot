@@ -20,7 +20,7 @@ import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-public class ChannelManager extends ListenerAdapter {
+public class FlexChannelManager extends ListenerAdapter {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	private Map<VoiceChannel, String> managedChannel = new HashMap<>();
 	private Config config = Config.getInstance();
@@ -35,13 +35,12 @@ public class ChannelManager extends ListenerAdapter {
 		}
 	};
 
-	public ChannelManager() {
+	public FlexChannelManager() {
 		t.schedule(updateChannel, 0, config.getProperty("Channel.updateInterval", 60) * 1000);
 	}
 
 	@Override
 	public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
-		logger.debug("join event");
 		// only act if the channel name is ours
 		VoiceChannel joinedVC = event.getChannelJoined();
 		Member affectedMember = event.getMember();
@@ -52,13 +51,11 @@ public class ChannelManager extends ListenerAdapter {
 
 	@Override
 	public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
-		logger.debug("leave event");
 		leftCheck(event.getChannelLeft());
 	}
 
 	@Override
 	public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
-		logger.debug("Move event");
 		if (!creationCheck(event.getChannelJoined(), event.getMember())) {
 			updateCheck(event.getChannelJoined());
 		}
@@ -105,7 +102,7 @@ public class ChannelManager extends ListenerAdapter {
 						.get().getKey();
 				name = config.getProperty("Channel.Prefix") + mostplayedGame;
 			}
-			vc.getManager().setName(name).submit();
+			vc.getManager().setName(name).queue();
 		}
 	}
 
@@ -114,7 +111,7 @@ public class ChannelManager extends ListenerAdapter {
 			logger.debug("Someone left a managed channel, checking if channel needs to be deleted");
 			if (vc.getMembers().size() == 0) {
 				managedChannel.remove(vc);
-				vc.delete().submit();
+				vc.delete().queue();
 				return true;
 			}
 		}
@@ -134,13 +131,13 @@ public class ChannelManager extends ListenerAdapter {
 				joinedVC.getGuild().getController().createVoiceChannel(name).queue((c) -> {
 					VoiceChannel vc = (VoiceChannel) c;
 					managedChannel.put(vc, affectedMember.getEffectiveName());
-					joinedVC.getGuild().getController().moveVoiceMember(affectedMember, vc).submit();
+					joinedVC.getGuild().getController().moveVoiceMember(affectedMember, vc).queue();
 				});
 			} else {
 				cat.createVoiceChannel(name).queue((c) -> {
 					VoiceChannel vc = (VoiceChannel) c;
 					managedChannel.put(vc, affectedMember.getEffectiveName());
-					joinedVC.getGuild().getController().moveVoiceMember(affectedMember, vc).submit();
+					joinedVC.getGuild().getController().moveVoiceMember(affectedMember, vc).queue();
 				});
 			}
 			return true;

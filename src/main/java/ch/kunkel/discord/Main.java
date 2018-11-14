@@ -18,6 +18,7 @@ public class Main {
 	private final String TOKEN;
 
 	public static void main(String[] args) {
+
 		try {
 			Main m = new Main();
 		} catch (IOException | URISyntaxException e) {
@@ -36,6 +37,6 @@ public class Main {
 			e.printStackTrace();
 		}
 		api.addEventListener(new CommandListener());
-		api.addEventListener(new ChannelManager());
+		api.addEventListener(new FlexChannelManager());
 	}
 }

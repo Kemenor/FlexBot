@@ -84,6 +84,18 @@
 			<artifactId>log4j-core</artifactId>
 			<version>2.11.1</version>
 		</dependency>
+		<!-- Vice recognition -->
+		<dependency>
+			<groupId>edu.cmu.sphinx</groupId>
+			<artifactId>sphinx4-core</artifactId>
+			<version>5prealpha-SNAPSHOT</version>
+		</dependency>
+		<!-- us data package -->
+		<dependency>
+			<groupId>edu.cmu.sphinx</groupId>
+			<artifactId>sphinx4-data</artifactId>
+			<version>5prealpha-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
@@ -91,6 +103,16 @@
 			<id>jcenter</id>
 			<name>jcenter-bintray</name>
 			<url>http://jcenter.bintray.com</url>
+		</repository>
+		<repository>
+			<id>snapshots-repo</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
 		</repository>
 	</repositories>
 </project>
