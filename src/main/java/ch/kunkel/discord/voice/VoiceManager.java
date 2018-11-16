@@ -51,33 +51,33 @@ public class VoiceManager implements AudioReceiveHandler, AutoCloseable {
 
 	@Override
 	public boolean canReceiveCombined() {
-		return false;
-	}
-
-	@Override
-	public boolean canReceiveUser() {
 		return true;
 	}
 
 	@Override
-	public void handleCombinedAudio(CombinedAudio combinedAudio) {
-		throw new UnsupportedOperationException("This handler doesn't accept combined Audio!");
+	public boolean canReceiveUser() {
+		return false;
 	}
 
 	@Override
-	public void handleUserAudio(UserAudio userAudio) {
-		if (closed || userAudio.getUser().isBot()) {
-			logger.debug("listening to own voice");
-			// We don't take kindly to my kind around here!
-			return;
-		}
+	public void handleCombinedAudio(CombinedAudio combinedAudio) {
+//		if (closed || userAudio.getUser().isBot()) {
+//			logger.debug("listening to own voice");
+//			// We don't take kindly to my kind around here!
+//			return;
+//		}
 		// this could be expanded so every user gets his own recognizer but whatever
 		try {
-			byte[] data = userAudio.getAudioData(1.0);
+			byte[] data = combinedAudio.getAudioData(1.0);
 			pop.write(data);
 		} catch (IOException e) {
 			logger.error("Can't write data to voice recognition", e);
 		}
+	}
+
+	@Override
+	public void handleUserAudio(UserAudio userAudio) {
+		
 	}
 
 	@Override

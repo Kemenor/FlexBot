@@ -10,6 +10,7 @@ import javax.security.auth.login.LoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.kunkel.discord.rss.RSSManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 
@@ -38,5 +39,7 @@ public class Main {
 		}
 		api.addEventListener(new CommandListener());
 		api.addEventListener(new FlexChannelManager());
+		//call to create
+		RSSManager.getInstance();
 	}
 }

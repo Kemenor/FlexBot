@@ -13,6 +13,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -40,6 +41,7 @@ public class RSSManager {
 	private final File rssFile;
 
 	private RSSManager() {
+		logger.debug("created RSS Manager");
 		rssFile = new File(config.getProperty("RSS.saveFile", "rssfeeds.xml"));
 		int interval = config.getProperty("RSS.updateInterval", 300);
 		save = load(rssFile);
@@ -56,23 +58,28 @@ public class RSSManager {
 	}
 
 	public void addRSSFeed(String rssUrl, String webhookURL) {
-		save.list.add(new RSS2DiscordEntry(webhookURL, rssUrl, ""));
+		logger.debug("adding RSS with webhook");
+		save.saveList.add(new RSS2DiscordEntry(webhookURL, rssUrl, ""));
+		update();
 	}
 
 	/**
-	 * removed by rssurl or by webhook url
+	 * removed by webhook url
 	 * 
 	 * @param url
 	 */
 	public void removeRSSFeed(String url) {
-		save.list = save.list.stream()
-				.filter((RSS2DiscordEntry entry) -> entry.getRssURL().equals(url) || entry.getWebhookURL().equals(url))
+		logger.debug("removed RSSfeed with webhook");
+		save.saveList = save.saveList.stream()
+				.filter((RSS2DiscordEntry entry) -> entry.getWebhookURL().equals(url))
 				.collect(Collectors.toList());
+		update();
 	}
 
 	public void update() {
+		logger.debug("reading rss feeds");
 		Remark remark = new Remark();
-		for (RSS2DiscordEntry rss2DiscordEntry : save.list) {
+		for (RSS2DiscordEntry rss2DiscordEntry : save.saveList) {
 			try {
 				// Download RSS Feed
 				DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -85,7 +92,7 @@ public class RSSManager {
 					if (!title.equals(rss2DiscordEntry.getLastTitle())) {
 						// new item in channel
 						rss2DiscordEntry.setLastTitle(title);
-						String content = item.getElementsByTagName("title").item(0).getTextContent();
+						String content = item.getElementsByTagName("description").item(0).getTextContent();
 						WebhookClientBuilder builder = new WebhookClientBuilder(rss2DiscordEntry.getWebhookURL());
 						try (WebhookClient client = builder.build()) {
 							client.send(remark.convert(content));
@@ -96,7 +103,6 @@ public class RSSManager {
 				logger.warn("Couldn't read rss feed under {}", rss2DiscordEntry.getRssURL(), e);
 			}
 		}
-
 		save(save, rssFile);
 	}
 
@@ -105,7 +111,9 @@ public class RSSManager {
 			JAXBContext jaxbContext = JAXBContext.newInstance(RSS2DiscordSave.class);
 
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			return (RSS2DiscordSave) jaxbUnmarshaller.unmarshal(rssFile);
+			RSS2DiscordSave save =  (RSS2DiscordSave) jaxbUnmarshaller.unmarshal(rssFile);
+			logger.debug("loaded {} rss entries", save.saveList.size());
+			return save;
 		} catch (JAXBException e) {
 			logger.warn("Couldn't load registered loosers.");
 		}
@@ -113,21 +121,18 @@ public class RSSManager {
 	}
 
 	private void save(RSS2DiscordSave save, File saveFile) {
+		logger.debug("saving rss {} ", save.saveList.size());
 		try {
 			JAXBContext jaxbContext = JAXBContext.newInstance(RSS2DiscordSave.class);
 			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 
 			// output pretty printed
-			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
 			jaxbMarshaller.marshal(save, saveFile);
 		} catch (JAXBException e) {
-			logger.warn("Couldn't save registered loosers.");
+			logger.warn("Couldn't save registered loosers.", e);
 		}
 	}
 
-	@XmlRootElement
-	class RSS2DiscordSave {
-		List<RSS2DiscordEntry> list = new ArrayList<>();
-	}
+
+	
 }

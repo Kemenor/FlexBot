@@ -42,9 +42,6 @@ public class TrackScheduler extends AudioEventAdapter {
 		return player.provide();
 	}
 
-	public void stop() {
-		player.stopTrack();
-	}
 
 	public void start() {
 		if (player.isPaused()) {

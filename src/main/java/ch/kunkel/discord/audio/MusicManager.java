@@ -26,20 +26,14 @@ public class MusicManager {
 	private AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
 	private Map<Guild, TrackScheduler> map = new HashMap<>();
 	private Logger logger = LoggerFactory.getLogger(MusicManager.class);
-	private Configuration configuration = new Configuration();
 
 	public MusicManager() {
-		logger.debug("registering remote sources");
 		playerManager.getConfiguration().setResamplingQuality(ResamplingQuality.HIGH);
 		AudioSourceManagers.registerRemoteSources(playerManager);
 
-		configuration.setAcousticModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us");
-		configuration.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
-		configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
 	}
 
 	public void join(VoiceChannel vc) {
-		logger.debug("join called");
 		if (map.containsKey(vc.getGuild())) {
 			logger.debug("already connected switching channel.");
 			AudioManager am = vc.getGuild().getAudioManager();
@@ -51,13 +45,6 @@ public class MusicManager {
 			AudioManager am = vc.getGuild().getAudioManager();
 			am.openAudioConnection(vc);
 			am.setSendingHandler(new AudioPlayerSendHandler(trackScheduler));
-//			try {
-//				logger.debug("setting receiving handler");
-//				am.setReceivingHandler(new VoiceManager(configuration));
-//			} catch (IOException e) {
-//				logger.warn("Voice Recognition not working!", e);
-//			}
-
 			am.openAudioConnection(vc);
 			map.put(vc.getGuild(), trackScheduler);
 			logger.debug("Guild id: {}", vc.getGuild().getId());
@@ -65,27 +52,15 @@ public class MusicManager {
 	}
 
 	public void disconnect(Guild guild) {
-		logger.debug("disconnect called");
 		AudioManager am = guild.getAudioManager();
 		am.setSendingHandler(null);
 		am.setReceivingHandler(null);
 		am.closeAudioConnection();
-//		try {
-//			// TODO uncomment when voice works
-//			VoiceManager vc = (VoiceManager) am.getReceiveHandler();
-//			vc.close();
-//		} catch (IOException e) {
-//			logger.warn("Couldn't close receive handler", e);
-//		}
 		map.remove(guild);
 	}
 
 	public void play(String identifier, Guild guild, TextChannel text) {
-		logger.debug("play called");
-		logger.debug("Guild id: {}", guild.getId());
-		logger.debug("{}", map.size());
 		if (map.containsKey(guild)) {
-			logger.debug("play accepted");
 			if ("".equals(identifier)) {
 				map.get(guild).start();
 			} else {
@@ -94,15 +69,23 @@ public class MusicManager {
 					@Override
 					public void trackLoaded(AudioTrack track) {
 						map.get(guild).queue(track);
-						text.sendMessage("Added a song with identifier \"" + identifier + "\"").queue();
+						text.sendMessage("Added a song with title \"" + track.getInfo().title + "\"").queue();
 					}
 
 					@Override
 					public void playlistLoaded(AudioPlaylist playlist) {
-						for (AudioTrack audioTrack : playlist.getTracks()) {
-							map.get(guild).queue(audioTrack);
+						if (identifier.startsWith("ytsearch:")) {
+							AudioTrack track = playlist.getTracks().get(0);
+							map.get(guild).queue(track);
+							
+							text.sendMessage("Added a search result with title \"" + track.getInfo().title + "\"").queue();
+						} else {
+							for (AudioTrack audioTrack : playlist.getTracks()) {
+								map.get(guild).queue(audioTrack);
+							}
+							text.sendMessage("Added a playlist with title \"" + playlist.getName() + "\"").queue();
 						}
-						text.sendMessage("Added a playlist with identifier \"" + identifier + "\"").queue();
+
 					}
 
 					@Override
@@ -123,42 +106,37 @@ public class MusicManager {
 	}
 
 	public void stop(Guild guild, TextChannel text) {
-		logger.debug("stop called");
 		if (map.containsKey(guild)) {
-			map.get(guild).stop();
+			map.get(guild).clear();
+
 		}
 	}
 
 	public void pause(Guild guild, TextChannel text) {
-		logger.debug("pause called");
 		if (map.containsKey(guild)) {
 			map.get(guild).pause();
 		}
 	}
 
 	public void unpause(Guild guild, TextChannel text) {
-		logger.debug("unpause called");
 		if (map.containsKey(guild)) {
 			map.get(guild).unpause();
 		}
 	}
 
 	public void setVolume(Guild guild, TextChannel text, int volume) {
-		logger.debug("setvolume called");
 		if (map.containsKey(guild)) {
 			map.get(guild).setVolume(volume);
 		}
 	}
 
 	public void skip(Guild guild, TextChannel text) {
-		logger.debug("skip called");
 		if (map.containsKey(guild)) {
 			map.get(guild).skip();
 		}
 	}
 
 	public void clear(Guild guild, TextChannel text) {
-		logger.debug("clear called");
 		if (map.containsKey(guild)) {
 			map.get(guild).clear();
 		}
