@@ -15,7 +15,6 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
-import edu.cmu.sphinx.api.Configuration;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -50,7 +49,7 @@ public class MusicManager {
 			logger.debug("Guild id: {}", vc.getGuild().getId());
 		}
 	}
-	
+
 	public void shuffle(Guild guild) {
 		if (map.containsKey(guild)) {
 			map.get(guild).shuffle();
@@ -83,8 +82,9 @@ public class MusicManager {
 						if (identifier.startsWith("ytsearch:")) {
 							AudioTrack track = playlist.getTracks().get(0);
 							map.get(guild).queue(track);
-							
-							text.sendMessage("Added a search result with title \"" + track.getInfo().title + "\"").queue();
+
+							text.sendMessage("Added a search result with title \"" + track.getInfo().title + "\"")
+									.queue();
 						} else {
 							for (AudioTrack audioTrack : playlist.getTracks()) {
 								map.get(guild).queue(audioTrack);
