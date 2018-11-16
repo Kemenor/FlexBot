@@ -41,4 +41,9 @@ public class HelpCommand implements Command {
 		return "Shows this Help";
 	}
 
+	@Override
+	public int getMaxArgsCount() {
+		return 0;
+	}
+
 }

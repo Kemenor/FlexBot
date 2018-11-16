@@ -22,6 +22,7 @@ public class CommandFactory {
 			put("pause", new PauseCommand());
 			put("unpause", new UnpauseCommand());
 			put("setvolume", new SetVolumeCommand());
+			put("search", new SearchCommand());
 		}
 	};
 

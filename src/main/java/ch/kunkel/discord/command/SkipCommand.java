@@ -29,4 +29,8 @@ public class SkipCommand implements Command {
 		return "Skips a song";
 	}
 
+	@Override
+	public int getMaxArgsCount() {
+		return 0;
+	}
 }

@@ -29,4 +29,8 @@ public class ClearCommand implements Command {
 		return "Stops the player and clears the playlist";
 	}
 
+	@Override
+	public int getMaxArgsCount() {
+		return 0;
+	}
 }

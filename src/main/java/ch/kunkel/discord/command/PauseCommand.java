@@ -28,4 +28,8 @@ public class PauseCommand implements Command {
 		return "Pauses the music player";
 	}
 
+	@Override
+	public int getMaxArgsCount() {
+		return 0;
+	}
 }

@@ -79,4 +79,8 @@ public class CreateCommand implements Command {
 		return "creates the flex voice channel if none exists. Usage: create <category>";
 	}
 
+	@Override
+	public int getMaxArgsCount() {
+		return 1;
+	}
 }

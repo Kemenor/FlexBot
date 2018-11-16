@@ -29,4 +29,9 @@ public class DisconnectCommand implements Command {
 		return "Disconnects the bot from his conencted voice channel";
 	}
 
+	@Override
+	public int getMaxArgsCount() {
+		return 0;
+	}
+
 }

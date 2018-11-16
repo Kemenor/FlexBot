@@ -14,4 +14,6 @@ public interface Command extends Runnable {
 	public Command newInstance(String[] args, GuildMessageReceivedEvent event);
 
 	public String getHelpString();
+
+	public int getMaxArgsCount();
 }

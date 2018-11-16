@@ -36,4 +36,9 @@ public class SetVolumeCommand implements Command {
 		return "Sets the volume of the music player";
 	}
 
+	@Override
+	public int getMaxArgsCount() {
+		return 1;
+	}
+
 }

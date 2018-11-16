@@ -27,4 +27,9 @@ public class UnpauseCommand implements Command {
 	public String getHelpString() {
 		return "Unpauses the music player";
 	}
+
+	@Override
+	public int getMaxArgsCount() {
+		return 0;
+	}
 }

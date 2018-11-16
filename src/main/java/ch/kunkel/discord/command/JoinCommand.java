@@ -35,4 +35,9 @@ public class JoinCommand implements Command {
 	public String getHelpString() {
 		return "Joins the users voice channel";
 	}
+
+	@Override
+	public int getMaxArgsCount() {
+		return 0;
+	}
 }

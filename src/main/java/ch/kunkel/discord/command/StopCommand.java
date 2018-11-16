@@ -29,4 +29,8 @@ public class StopCommand implements Command {
 		return "Stops the currently playing music";
 	}
 
+	@Override
+	public int getMaxArgsCount() {
+		return 0;
+	}
 }
