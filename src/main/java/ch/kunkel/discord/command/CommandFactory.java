@@ -26,6 +26,7 @@ public class CommandFactory {
 			put("clear", new ClearCommand());
 			put("register", new RegisterCommand());
 			put("unregister", new UnRegisterCommand());
+			put("shuffle", new ShuffleCommand());
 		}
 	};
 

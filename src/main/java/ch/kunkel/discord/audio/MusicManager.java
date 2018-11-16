@@ -50,6 +50,12 @@ public class MusicManager {
 			logger.debug("Guild id: {}", vc.getGuild().getId());
 		}
 	}
+	
+	public void shuffle(Guild guild) {
+		if (map.containsKey(guild)) {
+			map.get(guild).shuffle();
+		}
+	}
 
 	public void disconnect(Guild guild) {
 		AudioManager am = guild.getAudioManager();

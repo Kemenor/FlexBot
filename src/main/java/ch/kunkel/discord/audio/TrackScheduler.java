@@ -1,5 +1,6 @@
 package ch.kunkel.discord.audio;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -15,7 +16,7 @@ import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
 
 public class TrackScheduler extends AudioEventAdapter {
 	private Logger logger = LoggerFactory.getLogger(TrackScheduler.class);
-	private Queue<AudioTrack> queue = new LinkedList<>();
+	private LinkedList<AudioTrack> queue = new LinkedList<>();
 	private AudioPlayer player;
 
 	public TrackScheduler(AudioPlayerManager playerManager) {
@@ -74,5 +75,9 @@ public class TrackScheduler extends AudioEventAdapter {
 	public void clear() {
 		player.stopTrack();
 		queue.clear();
+	}
+
+	public void shuffle() {
+		Collections.shuffle(queue);
 	}
 }
