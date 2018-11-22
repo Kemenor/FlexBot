@@ -1,19 +1,19 @@
-package ch.kunkel.discord.command;
+package ch.kunkel.discord.command.rss;
 
+import ch.kunkel.discord.command.Command;
 import ch.kunkel.discord.rss.RSSManager;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
-public class UnRegisterCommand implements Command {
-
+public class UnRegisterCommand extends Command {
 	private String[] args;
 	private GuildMessageReceivedEvent event;
+
+	protected UnRegisterCommand() {
+	}
 
 	public UnRegisterCommand(String[] args, GuildMessageReceivedEvent event) {
 		this.args = args;
 		this.event = event;
-	}
-	
-	protected UnRegisterCommand() {
 	}
 
 	@Override
@@ -32,13 +32,18 @@ public class UnRegisterCommand implements Command {
 	}
 
 	@Override
-	public String getHelpString() {
-		return "unregisters a rss feed by webhook url";
+	public String getCommandWord() {
+		return "unregister";
 	}
 
 	@Override
-	public int getMaxArgsCount() {
-		return 0;
+	public String getDescription() {
+		return "Unregisters a rss feed by webhook url";
+	}
+
+	@Override
+	public String getUsage() {
+		return "unregister <webhookurl>";
 	}
 
 }

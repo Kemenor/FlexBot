@@ -3,14 +3,18 @@ package ch.kunkel.discord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+
 import ch.kunkel.discord.command.CommandFactory;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 public class CommandListener extends ListenerAdapter {
 	private Logger logger = LoggerFactory.getLogger(getClass());
-	private CommandFactory factory = new CommandFactory();
-	private CommandExecutor executor = new CommandExecutor();
+	@Inject
+	private CommandFactory factory;
+	@Inject
+	private CommandExecutor executor;
 
 	@Override
 	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {

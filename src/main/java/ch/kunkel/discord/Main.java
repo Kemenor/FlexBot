@@ -10,6 +10,10 @@ import javax.security.auth.login.LoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
+import ch.kunkel.discord.command.CommandModule;
 import ch.kunkel.discord.rss.RSSManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -37,9 +41,10 @@ public class Main {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		api.addEventListener(new CommandListener());
-		api.addEventListener(new FlexChannelManager());
-		//call to create
+		Injector injector = Guice.createInjector(new CommandModule());
+		api.addEventListener(injector.getInstance(CommandListener.class));
+		api.addEventListener(injector.getInstance(FlexChannelManager.class));
+		// call to create
 		RSSManager.getInstance();
 	}
 }

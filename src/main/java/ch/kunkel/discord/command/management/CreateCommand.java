@@ -1,4 +1,4 @@
-package ch.kunkel.discord.command;
+package ch.kunkel.discord.command.management;
 
 import java.util.Arrays;
 import java.util.List;
@@ -7,22 +7,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.kunkel.discord.Config;
+import ch.kunkel.discord.command.Command;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
-public class CreateCommand implements Command {
+public class CreateCommand extends Command {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	private String[] args;
-	private GuildMessageReceivedEvent event;
 	private Config config = Config.getInstance();
+	private GuildMessageReceivedEvent event;
 
-	protected CreateCommand() {
-	}
-
-	private CreateCommand(String[] args, GuildMessageReceivedEvent event) {
+	public CreateCommand(String[] args, GuildMessageReceivedEvent event) {
 		this.args = args;
 		this.event = event;
+	}
+
+	protected CreateCommand() {
 	}
 
 	@Override
@@ -75,12 +76,18 @@ public class CreateCommand implements Command {
 	}
 
 	@Override
-	public String getHelpString() {
-		return "creates the flex voice channel if none exists. Usage: create <category>";
+	public String getCommandWord() {
+		return "create";
 	}
 
 	@Override
-	public int getMaxArgsCount() {
-		return 1;
+	public String getDescription() {
+		return "creates the flex voice channel if it doesn't exists.";
 	}
+
+	@Override
+	public String getUsage() {
+		return "create {<category>}";
+	}
+
 }

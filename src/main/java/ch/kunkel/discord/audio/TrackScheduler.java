@@ -2,7 +2,7 @@ package ch.kunkel.discord.audio;
 
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.Queue;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,6 @@ public class TrackScheduler extends AudioEventAdapter {
 		return player.provide();
 	}
 
-
 	public void start() {
 		if (player.isPaused()) {
 			player.setPaused(false);
@@ -79,5 +78,11 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public void shuffle() {
 		Collections.shuffle(queue);
+	}
+
+	public List<AudioTrack> getQueue() {
+		LinkedList<AudioTrack> clone = ((LinkedList<AudioTrack>) queue.clone());
+		clone.addFirst(player.getPlayingTrack());
+		return Collections.unmodifiableList(clone);
 	}
 }

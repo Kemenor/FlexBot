@@ -1,11 +1,13 @@
 package ch.kunkel.discord.audio;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Singleton;
 import com.sedmelluq.discord.lavaplayer.player.AudioConfiguration.ResamplingQuality;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -20,8 +22,8 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.managers.AudioManager;
 
+@Singleton
 public class MusicManager {
-	private static MusicManager instance = new MusicManager();
 	private AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
 	private Map<Guild, TrackScheduler> map = new HashMap<>();
 	private Logger logger = LoggerFactory.getLogger(MusicManager.class);
@@ -29,7 +31,6 @@ public class MusicManager {
 	public MusicManager() {
 		playerManager.getConfiguration().setResamplingQuality(ResamplingQuality.HIGH);
 		AudioSourceManagers.registerRemoteSources(playerManager);
-
 	}
 
 	public void join(VoiceChannel vc) {
@@ -50,8 +51,8 @@ public class MusicManager {
 		}
 	}
 
-	public void shuffle(Guild guild) {
-		if (map.containsKey(guild)) {
+	public void shuffle(Guild guild, TextChannel text) {
+		if (checkGuild(guild, text)) {
 			map.get(guild).shuffle();
 		}
 	}
@@ -65,7 +66,7 @@ public class MusicManager {
 	}
 
 	public void play(String identifier, Guild guild, TextChannel text) {
-		if (map.containsKey(guild)) {
+		if (checkGuild(guild, text)) {
 			if ("".equals(identifier)) {
 				map.get(guild).start();
 			} else {
@@ -112,43 +113,54 @@ public class MusicManager {
 	}
 
 	public void stop(Guild guild, TextChannel text) {
-		if (map.containsKey(guild)) {
+		if (checkGuild(guild, text)) {
 			map.get(guild).clear();
 
 		}
 	}
 
 	public void pause(Guild guild, TextChannel text) {
-		if (map.containsKey(guild)) {
+		if (checkGuild(guild, text)) {
 			map.get(guild).pause();
 		}
 	}
 
 	public void unpause(Guild guild, TextChannel text) {
-		if (map.containsKey(guild)) {
+		if (checkGuild(guild, text)) {
 			map.get(guild).unpause();
 		}
 	}
 
 	public void setVolume(Guild guild, TextChannel text, int volume) {
-		if (map.containsKey(guild)) {
+		if (checkGuild(guild, text)) {
 			map.get(guild).setVolume(volume);
 		}
 	}
 
 	public void skip(Guild guild, TextChannel text) {
-		if (map.containsKey(guild)) {
+		if (checkGuild(guild, text)) {
 			map.get(guild).skip();
 		}
 	}
 
 	public void clear(Guild guild, TextChannel text) {
-		if (map.containsKey(guild)) {
+		if (checkGuild(guild, text)) {
 			map.get(guild).clear();
 		}
 	}
 
-	public static MusicManager getInstance() {
-		return instance;
+	private boolean checkGuild(Guild guild, TextChannel text) {
+		if (map.containsKey(guild)) {
+			return true;
+		}
+		text.sendMessage("I'm not connected to your Server!");
+		return false;
+	}
+
+	public List<AudioTrack> getPlaylist(Guild guild, TextChannel text) {
+		if (checkGuild(guild, text)) {
+			return map.get(guild).getQueue();
+		}
+		return null;
 	}
 }

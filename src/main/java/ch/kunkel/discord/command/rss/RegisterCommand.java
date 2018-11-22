@@ -1,9 +1,11 @@
-package ch.kunkel.discord.command;
+package ch.kunkel.discord.command.rss;
 
+import ch.kunkel.discord.command.Command;
 import ch.kunkel.discord.rss.RSSManager;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
-public class RegisterCommand implements Command {
+public class RegisterCommand extends Command {
+
 	private String[] args;
 	private GuildMessageReceivedEvent event;
 
@@ -30,13 +32,18 @@ public class RegisterCommand implements Command {
 	}
 
 	@Override
-	public String getHelpString() {
-		return "Registers a RSS Feed to the specified webhook. Usage: !flex register <rssurl> <webhookurl>";
+	public String getCommandWord() {
+		return "register";
 	}
 
 	@Override
-	public int getMaxArgsCount() {
-		return 2;
+	public String getDescription() {
+		return "Registers a RSS Feed to the specified webhook.";
+	}
+
+	@Override
+	public String getUsage() {
+		return "register <rssurl> <webhookurl>";
 	}
 
 }
