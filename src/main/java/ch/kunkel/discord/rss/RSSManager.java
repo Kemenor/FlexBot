@@ -26,6 +26,9 @@ import com.google.inject.Singleton;
 import com.overzealous.remark.Remark;
 
 import ch.kunkel.discord.Config;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.MessageBuilder.SplitPolicy;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookClientBuilder;
 
@@ -85,10 +88,14 @@ public class RSSManager {
 						logger.debug("new rss item found");
 						// new item in channel
 						rss2DiscordEntry.setLastTitle(title);
-						String content = item.getElementsByTagName("description").item(0).getTextContent();
+						String content = remark
+								.convert(item.getElementsByTagName("description").item(0).getTextContent());
 						WebhookClientBuilder builder = new WebhookClientBuilder(rss2DiscordEntry.getWebhookURL());
+						MessageBuilder mb = new MessageBuilder(content);
 						try (WebhookClient client = builder.build()) {
-							client.send(remark.convert(content));
+							for (Message message : mb.buildAll(SplitPolicy.NEWLINE)) {
+								client.send(message);
+							}
 						}
 					}
 				}
