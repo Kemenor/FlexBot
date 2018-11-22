@@ -3,8 +3,6 @@ package ch.kunkel.discord.rss;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
@@ -13,8 +11,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,21 +22,22 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.google.inject.Singleton;
 import com.overzealous.remark.Remark;
 
 import ch.kunkel.discord.Config;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookClientBuilder;
 
+@Singleton
 public class RSSManager {
 	private Logger logger = LoggerFactory.getLogger(RSSManager.class);
 	private RSS2DiscordSave save = new RSS2DiscordSave();
 	private Config config = Config.getInstance();
 	private Timer rssUpdate = new Timer();
-	private static RSSManager instance = new RSSManager();
 	private final File rssFile;
 
-	private RSSManager() {
+	protected RSSManager() {
 		logger.debug("created RSS Manager");
 		rssFile = new File(config.getProperty("RSS.saveFile", "rssfeeds.xml"));
 		int interval = config.getProperty("RSS.updateInterval", 300);
@@ -51,10 +48,6 @@ public class RSSManager {
 				update();
 			}
 		}, 0, interval * 1000);
-	}
-
-	public static RSSManager getInstance() {
-		return instance;
 	}
 
 	public void addRSSFeed(String rssUrl, String webhookURL) {
@@ -70,8 +63,7 @@ public class RSSManager {
 	 */
 	public void removeRSSFeed(String url) {
 		logger.debug("removed RSSfeed with webhook");
-		save.saveList = save.saveList.stream()
-				.filter((RSS2DiscordEntry entry) -> entry.getWebhookURL().equals(url))
+		save.saveList = save.saveList.stream().filter((RSS2DiscordEntry entry) -> entry.getWebhookURL().equals(url))
 				.collect(Collectors.toList());
 		update();
 	}
@@ -90,6 +82,7 @@ public class RSSManager {
 				if (item != null) {
 					String title = item.getElementsByTagName("title").item(0).getTextContent();
 					if (!title.equals(rss2DiscordEntry.getLastTitle())) {
+						logger.debug("new rss item found");
 						// new item in channel
 						rss2DiscordEntry.setLastTitle(title);
 						String content = item.getElementsByTagName("description").item(0).getTextContent();
@@ -111,7 +104,7 @@ public class RSSManager {
 			JAXBContext jaxbContext = JAXBContext.newInstance(RSS2DiscordSave.class);
 
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			RSS2DiscordSave save =  (RSS2DiscordSave) jaxbUnmarshaller.unmarshal(rssFile);
+			RSS2DiscordSave save = (RSS2DiscordSave) jaxbUnmarshaller.unmarshal(rssFile);
 			logger.debug("loaded {} rss entries", save.saveList.size());
 			return save;
 		} catch (JAXBException e) {
@@ -125,7 +118,7 @@ public class RSSManager {
 		try {
 			JAXBContext jaxbContext = JAXBContext.newInstance(RSS2DiscordSave.class);
 			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-
+			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			// output pretty printed
 			jaxbMarshaller.marshal(save, saveFile);
 		} catch (JAXBException e) {
@@ -133,6 +126,4 @@ public class RSSManager {
 		}
 	}
 
-
-	
 }

@@ -14,7 +14,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import ch.kunkel.discord.command.CommandModule;
-import ch.kunkel.discord.rss.RSSManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 
@@ -45,6 +44,5 @@ public class Main {
 		api.addEventListener(injector.getInstance(CommandListener.class));
 		api.addEventListener(injector.getInstance(FlexChannelManager.class));
 		// call to create
-		RSSManager.getInstance();
 	}
 }
