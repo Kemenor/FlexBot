@@ -4,9 +4,9 @@ import com.google.inject.Inject;
 
 import ch.kunkel.discord.audio.MusicManager;
 import ch.kunkel.discord.command.Command;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class SearchCommand extends Command {
 	@Inject

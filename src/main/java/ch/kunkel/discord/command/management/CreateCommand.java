@@ -3,14 +3,14 @@ package ch.kunkel.discord.command.management;
 import java.util.Arrays;
 import java.util.List;
 
+import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.kunkel.discord.Config;
 import ch.kunkel.discord.command.Command;
-import net.dv8tion.jda.core.entities.Category;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class CreateCommand extends Command {
 	private Logger logger = LoggerFactory.getLogger(getClass());
@@ -60,7 +60,7 @@ public class CreateCommand extends Command {
 			}
 		}
 		logger.debug("creating guild voice channel");
-		guild.getController().createVoiceChannel(config.getProperty("Channel.Manager")).queue((channel) -> {
+		guild.createVoiceChannel(config.getProperty("Channel.Manager")).queue((channel) -> {
 			event.getChannel()
 					.sendMessage("Created channel " + config.getProperty("Channel.Manager") + " at topplevel.").queue();
 		}, (throwable) -> {

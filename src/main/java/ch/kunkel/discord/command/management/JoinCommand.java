@@ -1,5 +1,7 @@
 package ch.kunkel.discord.command.management;
 
+import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,8 +9,6 @@ import com.google.inject.Inject;
 
 import ch.kunkel.discord.audio.MusicManager;
 import ch.kunkel.discord.command.Command;
-import net.dv8tion.jda.core.entities.VoiceChannel;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class JoinCommand extends Command {
 	@Inject

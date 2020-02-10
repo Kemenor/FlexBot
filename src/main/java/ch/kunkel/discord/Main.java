@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 
 import javax.security.auth.login.LoginException;
 
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +16,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import ch.kunkel.discord.command.CommandModule;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
 
 public class Main {
 	private static Logger logger = LoggerFactory.getLogger(Main.class);

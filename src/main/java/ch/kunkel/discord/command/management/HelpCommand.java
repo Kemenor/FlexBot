@@ -2,12 +2,12 @@ package ch.kunkel.discord.command.management;
 
 import java.util.Set;
 
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.kunkel.discord.command.Command;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class HelpCommand extends Command {
 	private Logger logger = LoggerFactory.getLogger(getClass());

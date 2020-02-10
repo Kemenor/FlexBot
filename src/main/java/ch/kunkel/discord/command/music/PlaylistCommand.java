@@ -2,6 +2,9 @@ package ch.kunkel.discord.command.music;
 
 import java.util.List;
 
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,10 +13,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import ch.kunkel.discord.audio.MusicManager;
 import ch.kunkel.discord.command.Command;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.MessageBuilder.SplitPolicy;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class PlaylistCommand extends Command {
 	@Inject
@@ -40,7 +39,7 @@ public class PlaylistCommand extends Command {
 			}
 
 			MessageBuilder mb = new MessageBuilder(sb);
-			for (Message message : mb.buildAll(SplitPolicy.NEWLINE)) {
+			for (Message message : mb.buildAll(MessageBuilder.SplitPolicy.NEWLINE)) {
 				event.getChannel().sendMessage(message).queue();
 			}
 		} else {

@@ -1,5 +1,16 @@
 package ch.kunkel.discord;
 
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,17 +19,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.dv8tion.jda.core.entities.Category;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.VoiceChannel;
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 public class FlexChannelManager extends ListenerAdapter {
 	private Logger logger = LoggerFactory.getLogger(getClass());
@@ -79,14 +79,14 @@ public class FlexChannelManager extends ListenerAdapter {
 		if (members.size() > 0) {
 			Map<String, AtomicInteger> gameCounter = new HashMap<>();
 			for (Member member : members) {
-				Game game = member.getGame();
-				if (game != null && game.getName() != null) {
-					if (gameCounter.containsKey(game.getName())) {
-						gameCounter.get(game.getName()).incrementAndGet();
-					} else {
-						gameCounter.put(game.getName(), new AtomicInteger(1));
+				List<Activity> activities = member.getActivities();
+					for(Activity activity : activities){
+							if (gameCounter.containsKey(activity.getName())) {
+								gameCounter.get(activity.getName()).incrementAndGet();
+							} else {
+								gameCounter.put(activity.getName(), new AtomicInteger(1));
+							}
 					}
-				}
 			}
 			String name;
 			if (gameCounter.isEmpty()) {
@@ -128,16 +128,15 @@ public class FlexChannelManager extends ListenerAdapter {
 				name = "Flexy Becksy";
 			}
 			if (cat == null) {
-				joinedVC.getGuild().getController().createVoiceChannel(name).queue((c) -> {
+				joinedVC.getGuild().createVoiceChannel(name).queue((c) -> {
 					VoiceChannel vc = (VoiceChannel) c;
 					managedChannel.put(vc, affectedMember.getEffectiveName());
-					joinedVC.getGuild().getController().moveVoiceMember(affectedMember, vc).queue();
+					joinedVC.getGuild().moveVoiceMember(affectedMember, vc).queue();
 				});
 			} else {
-				cat.createVoiceChannel(name).queue((c) -> {
-					VoiceChannel vc = (VoiceChannel) c;
+				cat.createVoiceChannel(name).queue((vc) -> {
 					managedChannel.put(vc, affectedMember.getEffectiveName());
-					joinedVC.getGuild().getController().moveVoiceMember(affectedMember, vc).queue();
+					joinedVC.getGuild().moveVoiceMember(affectedMember, vc).queue();
 				});
 			}
 			return true;

@@ -5,13 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
 import ch.kunkel.discord.command.management.HelpCommand;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class CommandFactory {
 	private Logger logger = LoggerFactory.getLogger(CommandFactory.class);

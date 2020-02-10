@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 
 import ch.kunkel.discord.command.Command;
 import ch.kunkel.discord.rss.RSSManager;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class RegisterCommand extends Command {
 	@Inject
