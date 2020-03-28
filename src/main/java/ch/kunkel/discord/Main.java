@@ -24,15 +24,15 @@ public class Main {
 	public static void main(String[] args) {
 
 		try {
-			Main m = new Main();
-		} catch (IOException | URISyntaxException e) {
+			new Main();
+		} catch (IOException e) {
 			logger.error("Token couldn't be found! Aborting start!", e);
 		} catch (LoginException e) {
 			logger.error("Token is incorrect! Aborting start!", e);
 		}
 	}
 
-	public Main() throws IOException, URISyntaxException, LoginException {
+	public Main() throws IOException, LoginException {
 		TOKEN = new String(Files.readAllBytes(Paths.get("token")));
 		JDA api = new JDABuilder(TOKEN).build();
 		try {
