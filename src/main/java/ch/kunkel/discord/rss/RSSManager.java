@@ -29,8 +29,9 @@ import java.util.stream.Collectors;
 
 @Singleton
 public class RSSManager {
+    private static final int MAX_CHARACTERS_IN_CONTENT = 2000;
     private Logger logger = LoggerFactory.getLogger(RSSManager.class);
-    private RSS2DiscordSave save = new RSS2DiscordSave();
+    private RSS2DiscordSave save;
     private Config config = Config.getInstance();
     private Timer rssUpdate = new Timer();
     private final File rssFile;
@@ -38,6 +39,7 @@ public class RSSManager {
     protected RSSManager() {
         logger.debug("created RSS Manager");
         rssFile = new File(config.getProperty("RSS.saveFile", "rssfeeds.xml"));
+
         int interval = config.getProperty("RSS.updateInterval", 300);
         save = load(rssFile);
         rssUpdate.schedule(new TimerTask() {
@@ -62,7 +64,7 @@ public class RSSManager {
     public void removeRSSFeed(String url) {
         logger.debug("removed RSSfeed with webhook");
         save.saveList = save.saveList.stream().filter((RSS2DiscordEntry entry) -> entry.getWebhookURL().equals(url))
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
         update();
     }
 
@@ -84,12 +86,25 @@ public class RSSManager {
                         // new item in channel
                         rss2DiscordEntry.setLastTitle(title);
                         String content = remark
-                            .convert(item.getElementsByTagName("description").item(0).getTextContent());
+                                .convert(item.getElementsByTagName("description").item(0).getTextContent());
                         WebhookClientBuilder builder = new WebhookClientBuilder(rss2DiscordEntry.getWebhookURL());
                         WebhookMessageBuilder mb = new WebhookMessageBuilder();
-                        mb.append(content);
+
                         try (WebhookClient client = builder.build()) {
-                            client.send(mb.build());
+                            int contentLength = content.length();
+                            if (contentLength > MAX_CHARACTERS_IN_CONTENT) {
+                                logger.debug("rss item length is greater than 20000 characters (actual length: {})", contentLength);
+                                int contentParts = contentLength / MAX_CHARACTERS_IN_CONTENT;
+                                for (int i = 0; i < contentParts; i++) {
+                                    String contentSplittedMessage = content.substring(i * MAX_CHARACTERS_IN_CONTENT,
+                                            (i + 1) * MAX_CHARACTERS_IN_CONTENT - 1);
+                                    mb.setContent(contentSplittedMessage);
+                                    client.send(mb.build());
+                                }
+                            } else {
+                                mb.append(content);
+                                client.send(mb.build());
+                            }
                         }
                     }
                 }
@@ -103,7 +118,6 @@ public class RSSManager {
     private RSS2DiscordSave load(File rssFile) {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(RSS2DiscordSave.class);
-
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             RSS2DiscordSave save = (RSS2DiscordSave) jaxbUnmarshaller.unmarshal(rssFile);
             logger.debug("loaded {} rss entries", save.saveList.size());
